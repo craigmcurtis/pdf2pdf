@@ -1,0 +1,32 @@
+#!/bin/sh
+
+if [ $# -lt 3 ];then
+  echo "not enough parameters"
+  echo "Usage: mypdf2pdf <pdf filename> <start page number> <end page number>"
+  exit 0
+fi
+
+mkdir $1.tmp
+
+i=$(($2-1))
+cat_str="pdftk "
+
+while [ $i -lt $3 ]
+do
+  echo "converting page $i"
+  #echo $1.[$i]
+  #echo $1.tmp/$1-$i.png
+  #echo "$1.[$i]"
+  convert -density 400 "$1[$i]" -colorspace RGB $1.tmp/$1-$i.png
+  convert $1.tmp/$1-$i.png $1.tmp/$1-$i.pdf
+  cat_str=$cat_str"$1.tmp/$1-$i.pdf "
+ # convert -adjoin $1.tmp/$1-$i.png $1-pic.pdf
+  i=$(( i + 1 ))
+  echo $cat_str
+done
+
+cat_str=$cat_str"cat output $1-pic.pdf"
+exec $cat_str
+#echo "generating pdf file"
+# convert -adjoin $1.tmp/*.png -format pdf $1-pic.pdf
+rm -r $1.tmp
